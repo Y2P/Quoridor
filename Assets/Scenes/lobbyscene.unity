@@ -204,9 +204,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1715683604}
-  - component: {fileID: 1715683602}
   - component: {fileID: 1715683603}
   - component: {fileID: 1715683606}
+  - component: {fileID: 1715683607}
   - component: {fileID: 1715683605}
   m_Layer: 0
   m_Name: roomManager
@@ -215,27 +215,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1715683602
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1715683601}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Port: 7777
-  NoDelay: 1
-  Interval: 10
-  FastResend: 2
-  CongestionWindow: 0
-  SendWindowSize: 128
-  ReceiveWindowSize: 128
-  debugLog: 0
-  debugGUI: 0
 --- !u!114 &1715683603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,7 +234,7 @@ MonoBehaviour:
   serverTickRate: 30
   offlineScene: 
   onlineScene: 
-  transport: {fileID: 1715683602}
+  transport: {fileID: 1715683607}
   networkAddress: localhost
   maxConnections: 2
   disconnectInactiveConnections: 0
@@ -319,7 +298,7 @@ MonoBehaviour:
   secretHandshake: -4096734936568682601
   serverBroadcastListenPort: 47777
   ActiveDiscoveryInterval: 3
-  transport: {fileID: 0}
+  transport: {fileID: 1715683607}
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
@@ -334,3 +313,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1715683607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715683601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0110f245bfcfc7d459681f7bd9ebc590, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  port: 7778
+  maxMessageSize: 16384
+  handshakeMaxSize: 3000
+  noDelay: 0
+  sendTimeout: 5000
+  receiveTimeout: 20000
+  serverMaxMessagesPerTick: 10000
+  clientMaxMessagesPerTick: 1000
+  batchSend: 1
+  waitBeforeSend: 0
+  clientUseWss: 0
+  sslEnabled: 0
+  sslCertJson: ./cert.json
+  sslProtocols: 3072
+  _logLevels: 0
