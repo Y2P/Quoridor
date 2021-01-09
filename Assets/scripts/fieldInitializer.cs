@@ -2,54 +2,65 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Mirror; 
 
-public class fieldInitializer : MonoBehaviour
+public class fieldInitializer : NetworkBehaviour
 {
     public int colLength = 9; 
     public int rowLength = 9; 
 
     public GameObject tile;
     public GameObject fence;
-    public bool fenceButtonClicked;
-    private int[] fenceCounts;
+    private int fenceServer = 10; 
+    private int fenceClient = 10; 
+    public bool fenceGrabbed; 
+    public bool IsMyTurn;
     // Start is called before the first frame update
+    private Quaternion verticalPos; 
+
     void Start()
     {
-	    fenceButtonClicked = false;
-        // Initialize a tile grid
-        for (int i = 0 ; i < colLength; i++)
-    	{ 	    
-            for (int j = 0 ; j < rowLength; j++)
+        fenceGrabbed =false; 
+        if(isServer){
+            IsMyTurn = true;
+        }else if (isClient) {
+            IsMyTurn = false; 
+        }
+        if(isServer){
+            // Initialize a tile grid
+            for (int i = 0 ; i < colLength; i++)
+            { 	    
+                for (int j = 0 ; j < rowLength; j++)
+                {
+                    GameObject t = Instantiate(tile,new Vector3(i,0.34f,j),Quaternion.identity);
+                    NetworkServer.Spawn(t);
+                }
+            }
+            // Initialize the fences
+
+            verticalPos.eulerAngles = new Vector3(0,90.0f,0); 
+
+            for (int i = 0 ; i < fenceServer; i++)
+            { 	    
+                GameObject f = Instantiate(fence,new Vector3((float)9.25,0.34f,9*(float)i/10),verticalPos);
+                NetworkServer.Spawn(f);
+            }
+            for (int i = 0 ; i < fenceClient; i++)
             {
-                GameObject t = Instantiate(tile,new Vector3(i,0.25f,j),Quaternion.identity);
+                GameObject f = Instantiate(fence,new Vector3((float)-1.25,0.34f,9*(float)i/10),verticalPos);
+                NetworkServer.Spawn(f);
 
             }
-	    }
-   
+
+        }
+        if(!isServer)
+            transform.eulerAngles = new Vector3(90.0f,0.0f,270.0f);
+
+        
     }
 
     // Update is called once per frame
     void Update()
     { 
     }
-    // Fence button gui 
-	void OnGUI() 
-	{   
-        GUIStyle customButton = new GUIStyle("button");
-        customButton.fontSize = 35;
-	    if(GUI.Button(new Rect(100, 70, 180, 100), "Put Fence",customButton)){
-		    fenceButtonClicked = !fenceButtonClicked;
-	    }
-        fence = GameObject.Find("fence");
-        fenceCounts = fence.GetComponent<fenceLocator>().fenceCounts;
-        bool turn = gameObject.GetComponent<ruleManager>().turn; 
-        string stringToEdit =  "P1: Remaining Fences: "+ (fenceCounts[0]).ToString()+ "\n" +"P2: Remaining Fences: "+ (fenceCounts[1]).ToString();  ;
-        GUIStyle customtextfield = new GUIStyle("textField");
-        customtextfield.fontSize = 35;
-        stringToEdit = GUI.TextField(new Rect(500, 70, 500, 100), stringToEdit,customtextfield);
-        if(GUI.Button(new Rect(300, 70, 150, 100), "Restart",customButton)){
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); 
-	    }
-	}
-
 }

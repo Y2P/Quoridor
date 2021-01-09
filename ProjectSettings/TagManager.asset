@@ -8,6 +8,7 @@ TagManager:
   - pawn2
   - fence
   - tile
+  - pawn
   layers:
   - Default
   - TransparentFX
