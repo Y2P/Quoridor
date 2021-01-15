@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;  
-public class fenceLocator : NetworkBehaviour
+public class fenceLocator : MonoBehaviour
 {
    
 	public bool fenceOverlap;
@@ -44,9 +43,8 @@ public class fenceLocator : NetworkBehaviour
 						fence = null;
 						canBePlaced = false;
 					}else{
-						bool ServerFlag = cam.GetComponent<fieldInitializer>().isServer; 
-						// Check if 
-						if ( (ServerFlag && fence.transform.position.x > 0) || (!ServerFlag && fence.transform.position.x < 0)){
+
+						if (  fence.transform.position.x > 0 ){
 							cam.GetComponent<fieldInitializer>().fenceGrabbed = true; 
 							fenceOrgPos = fence.transform.position;
 							fenceOrgRot = fence.transform.rotation; 
@@ -99,11 +97,6 @@ public class fenceLocator : NetworkBehaviour
 						GetComponent<BoxCollider>().enabled = false;
 						cam.GetComponent<ruleManager>().fenceUpdate = true;
  
-						if(!cam.GetComponent<ruleManager>().isServer){
-							CmdClientFenceMsg(transform.position,transform.rotation);
-						}else { 
-							RpcServerFenceMsg(transform.position,transform.rotation);
-						}
 					// If not feasible, put it back 
 					} else {
 						GetComponent<Renderer>().enabled = true;
@@ -119,28 +112,6 @@ public class fenceLocator : NetworkBehaviour
 
 		}
 	}
-	[Command(ignoreAuthority = true)]
-	public void CmdClientFenceMsg(Vector3 pos,Quaternion rot){
-		gameObject.transform.position = pos; 
-		gameObject.transform.rotation = rot; 
-		gameObject.tag = "Respawn";
-
-		GetComponent<fenceLocator>().enabled = false;
-		GetComponent<BoxCollider>().enabled = false; 
-
-	}
-	[ClientRpc]
-	public void RpcServerFenceMsg(Vector3 pos,Quaternion rot){
-		if(!cam.GetComponent<ruleManager>().isServer){
-			gameObject.transform.position = pos; 
-			gameObject.transform.rotation = rot; 
-			gameObject.tag = "Respawn";
-
-			GetComponent<fenceLocator>().enabled = false;
-			GetComponent<BoxCollider>().enabled = false;
-		}
-	}
-
 	// Function to get mouse point
 	public Vector3 getWorldPoint() {
 		Ray ray = cam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);

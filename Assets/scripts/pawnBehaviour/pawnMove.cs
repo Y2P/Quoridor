@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror; 
 
-public class pawnMove : NetworkBehaviour
+public class pawnMove : MonoBehaviour
 {
     private bool fenceGrabbed;
     public bool selected; 
@@ -34,10 +33,10 @@ public class pawnMove : NetworkBehaviour
         // We move pawns while not locating fences
         fenceGrabbed = cam.GetComponent<fieldInitializer>().fenceGrabbed;
         IsMyTurn = cam.GetComponent<fieldInitializer>().IsMyTurn; 
-        if( IsMyTurn && isLocalPlayer && selected && !fenceGrabbed && Physics.Raycast (ray, out hit))
+        if( IsMyTurn && selected && !fenceGrabbed && Physics.Raycast (ray, out hit))
         {
             // If there is a selected pawn and targetted tile 
-            if(hit.transform.name != "pawn(Clone)" && Input.GetMouseButtonDown(0)){
+            if(hit.transform.name != "pawn" && Input.GetMouseButtonDown(0)){
                 selected = false; 
                 if(hit.transform.name == "tile(Clone)") {
                     // Get tile position

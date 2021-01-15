@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
-public class pawnHighlight: NetworkBehaviour
+
+public class pawnHighlight: MonoBehaviour
 {
 
     //When the mouse hovers over the GameObject, it turns to this color (red)
@@ -15,8 +15,6 @@ public class pawnHighlight: NetworkBehaviour
     MeshRenderer m_Renderer;
     public void Start()
     {
-        if(isLocalPlayer)
-            GetComponent<MeshRenderer>().material.color = Color.green;
 
         m_Renderer = GetComponent<MeshRenderer>();
         m_OriginalColor = m_Renderer.material.color;

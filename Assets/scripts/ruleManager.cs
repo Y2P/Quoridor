@@ -4,17 +4,16 @@ using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
 using UnityEditor;
-using Mirror; 
 
-public class ruleManager : NetworkBehaviour
+public class ruleManager : MonoBehaviour
 {
 
     public int[,] pathGraph = new int[81,81]; 
     public int colLength,rowLength;
     public bool pawnUpdate;
     public bool fenceUpdate;
-    public Vector3 p1; 
-    public Vector3 p2; 
+    public GameObject p1; 
+    public GameObject p2; 
     public Canvas gameOverCanvas; 
 
     private int x,z;
@@ -38,13 +37,8 @@ public class ruleManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        GameObject[] playerlist = GameObject.FindGameObjectsWithTag("pawn");
-        if(playerlist.Length == 2){
-
             if(fenceUpdate || pawnUpdate){
 
-                p1 = playerlist[1].transform.position; 
-                p2 = playerlist[0].transform.position; 
 
                 // After a move, update the allowed paths
                 initializeGrid();
@@ -53,45 +47,16 @@ public class ruleManager : NetworkBehaviour
 
                 fenceUpdate = false;
                 pawnUpdate = false;
-                checkWinner(true);
+                checkWinner();
 
-                if(isServer){
-                    RpcClientTurn(p1,p2);
-                }else{
-                    cmdServerTurn(p1,p2); 
-                }
-                GetComponent<fieldInitializer>().IsMyTurn = false;
+
+                GetComponent<fieldInitializer>().IsMyTurn = !GetComponent<fieldInitializer>().IsMyTurn;
                 drawGraph(pathGraph);
             }
 
-        }
+        
     }
 
-    [Command(ignoreAuthority = true)]
-    public void cmdServerTurn(Vector3 pos1,Vector3 pos2){
-        GetComponent<fieldInitializer>().IsMyTurn = true; 
-        p1 = pos1; 
-        p2 = pos2; 
-        initializeGrid();
-        fenceUpdateGraph();
-        pawnUpdateGraph();
-        checkWinner(false);
-
-    }
-    [ClientRpc(excludeOwner=true)]
-    public void RpcClientTurn(Vector3 pos1,Vector3 pos2){
-        if(!isServer) {
-            GetComponent<fieldInitializer>().IsMyTurn = true; 
-            p1 = pos1; 
-            p2 = pos2; 
-
-            initializeGrid();
-            fenceUpdateGraph();
-            pawnUpdateGraph();
-            checkWinner(false);
-
-        }
-    }
 
 
 
@@ -114,20 +79,18 @@ public class ruleManager : NetworkBehaviour
                 pathGraph[i,i-colLength] = 1;
         }
     }
-    public void checkWinner(bool win) {
-        String youwinlose = win?"You Won!!":"You Lost!!";
-        if(!isServer){
-            gameOverCanvas.transform.eulerAngles = new Vector3 (90.0f,0.0f,180.0f); 
-        }
-        if(p2.x == 0 ) {
+    public void checkWinner() {
+        Vector3 p1_pos = p1.transform.position;
+        Vector3 p2_pos = p2.transform.position;
+        if(p1_pos.x == 0 ) {
             gameOverCanvas.enabled = true;
             gameOverCanvas.GetComponent<BoxCollider>().enabled=true; 
-            gameOverCanvas.transform.Find("winlose").GetComponent<TMPro.TextMeshProUGUI>().text = youwinlose;  
+            gameOverCanvas.transform.Find("winlose").GetComponent<TMPro.TextMeshProUGUI>().text = "You Win!!";  
             StartCoroutine(waiter());
-        }else if(p1.x == colLength-1 ){ 
+        }else if(p2_pos.x == colLength-1 ){ 
             gameOverCanvas.enabled = true; 
             gameOverCanvas.GetComponent<BoxCollider>().enabled=true; 
-            gameOverCanvas.transform.Find("winlose").GetComponent<TMPro.TextMeshProUGUI>().text = youwinlose;  
+            gameOverCanvas.transform.Find("winlose").GetComponent<TMPro.TextMeshProUGUI>().text = "You Lost!!";  
             StartCoroutine(waiter());
         }
         return;
@@ -140,8 +103,10 @@ public class ruleManager : NetworkBehaviour
     }
     public void pawnUpdateGraph() {
         
-        int p1_idx = tile2Graphidx(p1.x,p1.z);
-        int p2_idx = tile2Graphidx(p2.x,p2.z);
+        Vector3 p1_pos = p1.transform.position;
+        Vector3 p2_pos = p2.transform.position;
+        int p1_idx = tile2Graphidx(p1_pos.x,p1_pos.z);
+        int p2_idx = tile2Graphidx(p2_pos.x,p2_pos.z);
 
         // If two pawns are neighbors.... 
         if(pathGraph[p1_idx,p2_idx] == 1) {
@@ -192,8 +157,6 @@ public class ruleManager : NetworkBehaviour
             float yangle = fencesInScene[i].transform.eulerAngles.y; 
             if(yangle > 180.0f)
                 yangle -= 360.0f; 
-
-            Debug.Log(yangle);
 
             // According to the fence rotation, block corresponding paths between assoicated tiles
             if( yangle <= 45.0f) {

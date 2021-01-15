@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Mirror; 
 
-public class fieldInitializer : NetworkBehaviour
+public class fieldInitializer : MonoBehaviour
 {
     public int colLength = 9; 
     public int rowLength = 9; 
@@ -21,19 +20,14 @@ public class fieldInitializer : NetworkBehaviour
     void Start()
     {
         fenceGrabbed =false; 
-        if(isServer){
-            IsMyTurn = true;
-        }else if (isClient) {
-            IsMyTurn = false; 
-        }
-        if(isServer){
+        IsMyTurn = true; 
             // Initialize a tile grid
             for (int i = 0 ; i < colLength; i++)
             { 	    
                 for (int j = 0 ; j < rowLength; j++)
                 {
                     GameObject t = Instantiate(tile,new Vector3(i,0.34f,j),Quaternion.identity);
-                    NetworkServer.Spawn(t);
+
                 }
             }
             // Initialize the fences
@@ -43,18 +37,12 @@ public class fieldInitializer : NetworkBehaviour
             for (int i = 0 ; i < fenceServer; i++)
             { 	    
                 GameObject f = Instantiate(fence,new Vector3((float)9.25,0.34f,9*(float)i/10),verticalPos);
-                NetworkServer.Spawn(f);
             }
             for (int i = 0 ; i < fenceClient; i++)
             {
                 GameObject f = Instantiate(fence,new Vector3((float)-1.25,0.34f,9*(float)i/10),verticalPos);
-                NetworkServer.Spawn(f);
 
             }
-
-        }
-        if(!isServer)
-            transform.eulerAngles = new Vector3(90.0f,0.0f,270.0f);
 
         
     }
